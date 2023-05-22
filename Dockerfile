@@ -15,5 +15,5 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-#EXPOSE 8080 #dc bot doesn't need to expose port
+EXPOSE 80
 CMD [ "node", "index.js" ]
