@@ -152,7 +152,7 @@ client.on("messageCreate", async message => {
     }
 
     sessionInfo(message, userMessageAmount, countMessages)
-    // message.channel.stopTyping();
+    // message.channel.stopTyping()
 
     clearInterval(interval);
 });
