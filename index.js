@@ -69,9 +69,9 @@ client.on("messageCreate", async message => {
         return
     }
     await message.channel.sendTyping()
-    // const interval = setInterval(async () => {
-    //     await message.channel.sendTyping();
-    // }, 5000);
+    const interval = setInterval(async () => {
+        await message.channel.sendTyping();
+    }, 5000);
 
     let conversationLog = [{
         role: 'system',
@@ -131,7 +131,7 @@ client.on("messageCreate", async message => {
             // throw error;
         }
         sessionInfo(message, userMessageAmount, countMessages)
-        // clearInterval(interval);
+        clearInterval(interval);
         return
     }
     const gptMessage = result.data.choices[0].message.content
@@ -153,7 +153,7 @@ client.on("messageCreate", async message => {
     sessionInfo(message, userMessageAmount, countMessages)
     // message.channel.stopTyping();
 
-    // clearInterval(interval);
+    clearInterval(interval);
 });
 
 
