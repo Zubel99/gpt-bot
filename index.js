@@ -123,17 +123,16 @@ client.on("messageCreate", async message => {
             error.data.error && error.data.error.message.includes("model is currently overloaded")) {
             console.error("GPT-3 model is overloaded, please try again later.")
             message.reply("GPT-3 model is overloaded, please try again later.")
-            sessionInfo(message, userMessageAmount, countMessages)
-            return
             // throw error;
         } else {
             console.error('Weird error: ', error)
             message.reply(error.toString())
             message.reply('Unknown error, should still work')
-            sessionInfo(message, userMessageAmount, countMessages)
-            return
             // throw error;
         }
+        sessionInfo(message, userMessageAmount, countMessages)
+        clearInterval(interval);
+        return
     }
     const gptMessage = result.data.choices[0].message.content
 
