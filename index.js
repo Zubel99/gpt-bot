@@ -117,6 +117,7 @@ client.on("messageCreate", async message => {
             model: gptModel,
             messages: conversationLog,
         })
+        console.log('api call')
     }
     catch(error){
         if (error.statusCode === 503 && error.data &&
