@@ -1,0 +1,13 @@
+ps aux | grep index.js
+kill <pid>
+
+
+----------------
+https://www.youtube.com/watch?v=VEn70C7S5Q8&ab_channel=JayMartMedia
+
+
+tmux - i odpalic programik
+tmux ls
+tmux a -t <id> - dolaczanie do sesji tmuxa
+
+tmux kill-session -t <pid>
