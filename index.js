@@ -65,7 +65,7 @@ client.on("messageCreate", async message => {
         return
     }
     if(clearHistoryCommands.indexOf(message.content.toLowerCase()) !== -1){
-        message.reply(':recycle: Conversation history cleared' + '\nMessages in session left: ' + userMessageAmount.toString())
+        message.author.send(':recycle: Conversation history cleared' + '\nMessages in session left: ' + userMessageAmount.toString())
         return
     }
     await message.channel.sendTyping()
@@ -117,19 +117,15 @@ client.on("messageCreate", async message => {
             model: gptModel,
             messages: conversationLog,
         })
-        console.log('api call')
     }
     catch(error){
-        if (error.statusCode === 503 && error.data &&
-            error.data.error && error.data.error.message.includes("model is currently overloaded")) {
-            console.error("GPT-3 model is overloaded, please try again later.")
-            message.reply("GPT-3 model is overloaded, please try again later.")
-            // throw error;
-        } else {
-            console.error('Weird error: ', error)
-            message.reply(error.toString())
-            message.reply('Unknown error, should still work')
-            // throw error;
+        if(error.response.status && error.response.statusText){
+            console.log(error.response.status)
+            console.log(error.response.statusText)
+            message.author.send(':skull:  Error: ' + error.response.status + ' - ' + error.response.statusText)
+        }
+        else{
+            message.author.send('Unknown error, shouldnt happen')
         }
         sessionInfo(message, userMessageAmount, countMessages)
         clearInterval(interval);
@@ -152,8 +148,6 @@ client.on("messageCreate", async message => {
     }
 
     sessionInfo(message, userMessageAmount, countMessages)
-    // message.channel.stopTyping()
-
     clearInterval(interval);
 });
 
