@@ -28,7 +28,7 @@ client.on('ready', () => {
 
 
 const fetchAmount = 100;
-const userMessageAmount = 15;
+const userMessageAmount = 4;
 
 function sessionInfo(message, userMessageAmount, countMessages){
     if(countMessages >= userMessageAmount){
@@ -65,7 +65,7 @@ client.on("messageCreate", async message => {
         return
     }
     if(clearHistoryCommands.indexOf(message.content.toLowerCase()) !== -1){
-        message.author.send(':recycle: Conversation history cleared' + '\nMessages in session left: ' + userMessageAmount.toString())
+        message.author.send(':recycle: Conversation history cleared' + '\nMessages in session left: ' + (userMessageAmount-1).toString())
         return
     }
     await message.channel.sendTyping()
@@ -150,7 +150,7 @@ client.on("messageCreate", async message => {
             message.reply('(' + (index +1) + '/' + splitGptMessage.length + ') ' + element);
         });
     }
-    message.author.send(':warning:  Messages in session left: ' + (userMessageAmount - countMessages).toString());
+    message.author.send(':warning:  Messages in session left: ' + (userMessageAmount - countMessages - 1).toString());
     clearInterval(interval);
 });
 
