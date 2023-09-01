@@ -1,6 +1,6 @@
 require('dotenv/config');
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 const gptModel = 'gpt-3.5-turbo'
 const authorizedUsers = process.env.AUTHORIZED_USERS.split(' ')
@@ -16,10 +16,9 @@ const client = new Client({
     ],
     partials: [Partials.Channel],
 });
-const configuration = new Configuration({
+const openai = new OpenAI({
     apiKey: process.env.API_KEY,
 })
-const openai = new OpenAIApi(configuration)
 
 
 client.on('ready', () => {
@@ -34,9 +33,10 @@ const userMessageAmount = 15;
 function sessionInfo(message, userMessageAmount, countMessages){
     if(countMessages >= userMessageAmount){
         message.author.send(':red_circle:  Session expired! Type !reset or !clean to start new one')
-        return
+        return 1
     }
-    message.author.send(':warning:  Messages in session left: ' + (userMessageAmount - countMessages).toString());
+    // message.author.send(':warning:  Messages in session left: ' + (userMessageAmount - countMessages).toString());
+    return 0
 }
 
 function getCurrentDate(){
@@ -69,13 +69,13 @@ client.on("messageCreate", async message => {
         return
     }
     await message.channel.sendTyping()
-    const interval = setInterval(async () => {
+    let interval = setInterval(async () => {
         await message.channel.sendTyping();
     }, 5000);
 
     let conversationLog = [{
         role: 'system',
-        content: 'You are a friendly chatbot. I am going to give you multiple objects that represent history of out chat, dont respond to all of them, only to the newest one.'
+        content: 'You are a friendly chatbot. I am going to give you multiple objects that represent history of out chat, keep them in mind for conversation context but dont respond to all of them, only to the newest one.'
     }]
     let lastUserMessages = []
     let prevMessages = await message.channel.messages.fetch({limit: fetchAmount})
@@ -107,13 +107,18 @@ client.on("messageCreate", async message => {
         countMessages++
     })
 
+    if (sessionInfo(message, userMessageAmount, countMessages) == 1){ //check whether session expired (too many messages)
+        clearInterval(interval);
+        return
+    }
+
 
     // console.log(filteredLastUserMessages)
     // console.log('count messages: ', countMessages)
 
     let result = ''
     try{
-        result = await openai.createChatCompletion({ //    **** call do API ****
+        result = await openai.chat.completions.create({ //    **** call do API ****
             model: gptModel,
             messages: conversationLog,
         })
@@ -127,11 +132,10 @@ client.on("messageCreate", async message => {
         else{
             message.author.send('Unknown error, shouldnt happen')
         }
-        sessionInfo(message, userMessageAmount, countMessages)
         clearInterval(interval);
         return
     }
-    const gptMessage = result.data.choices[0].message.content
+    const gptMessage = result.choices[0].message.content
 
     // console.log('GPT-3 says: ', gptMessage)
     // console.log(gptMessage.length)
@@ -146,8 +150,7 @@ client.on("messageCreate", async message => {
             message.reply('(' + (index +1) + '/' + splitGptMessage.length + ') ' + element);
         });
     }
-
-    sessionInfo(message, userMessageAmount, countMessages)
+    message.author.send(':warning:  Messages in session left: ' + (userMessageAmount - countMessages).toString());
     clearInterval(interval);
 });
 
